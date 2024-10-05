@@ -1,0 +1,52 @@
+.remoteUser {
+  width: 25%;
+}
+#messagesContainer ul {
+  max-height: 300px;
+  overflow: auto;
+  list-style: none;
+}
+#query-form {
+  max-width: 600px;
+  /* Set a max width for the form */
+  margin: 20px auto;
+  /* Center the form horizontally */
+  padding: 20px;
+  /* Add some padding */
+  border-radius: 8px;
+  /* Rounded corners */
+  background-color: #f8f9fa;
+  /* Light background color */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+}
+
+#query {
+  width: 100%;
+  /* Full width */
+  height: 150px;
+  /* Set height for the textarea */
+  /* resize: none; */
+  /* Prevent resizing */
+  border-radius: 4px;
+  /* Rounded corners */
+  border: 1px solid #ced4da;
+  /* Bootstrap border color */
+  padding: 10px;
+  /* Inner padding */
+  font-size: 16px;
+  /* Font size */
+}
+
+#query:focus {
+  border-color: #80bdff;
+  /* Focus border color */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  /* Focus shadow */
+}
+
+button {
+  align-items: center;
+  margin-top: 10px;
+  /* Space above the button */
+}

@@ -1,0 +1,18 @@
+{
+  "name": "sqlite-wasm-webrtc",
+  "version": "0.0.1",
+  "description": "Collaborative DB sharing by using SQLite in the browser via WebAssembly and streaming the changes to peers via WebRTC",
+  "dependencies": {
+    "socket.io": "^4.7.4",
+    "typescript": "^5.4.2"
+  },
+  "scripts": {
+    "build": "./node_modules/typescript/bin/tsc",
+    "start": "ts-node server.ts",
+    "dev": "npm run build && npm run start"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "ts-node": "^10.9.2"
+  }
+}

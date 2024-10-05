@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<head>
+
+  <title>SQLite WebAssembly + WebRTC</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+  <div style="text-align: center;">
+    <h1>SQLite WebAssembly + WebRTC</h1>
+    <div id="metadata">
+      Room Name: <span id="room"></span>
+      <br>
+      User ID: <span id="id"></span>
+    </div>
+    <button id="joinButton">Join Room</button>
+    <button id="hangupButton">Hangup</button>
+  </div>
+  <div id="messagesContainer" style="display: none;">
+    <h2>Messages</h2>
+    <ul id="messages"></ul>
+    <textarea name="message" id="newMessage"></textarea>
+    <button id="sendMessage">Send</button>
+  </div>
+  <form id="query-form">
+    <h1>Write your SQL queries here.</h1>
+    <textarea id="query"></textarea>
+    <input type="file" name="csv" id="csv_file">
+    <button type="submit" style="width: 100%;">Run</button>
+  </form>
+  <div id="spreadsheet-div"></div>
+  <script src="./csvToSqlite.js"></script>
+  <script src="./randomString.js"></script>
+  <script src="./async-worker.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <script src="./spreadsheet.js"></script>
+  <script type="module">
+    const w = new Worker("sqlite3-worker1.js");
+    window.sqlite3Worker = w;
+    w.onmessage = function (event) {
+      event = event.data;
+      switch (event.type) {
+        case "sqlite3-api":
+          if ("worker1-ready" === event.result) {
+            // The worker is now ready to accept messages
+            const form = /** @type {HTMLFormElement} */ (
+              document.getElementById("query-form")
+            );
+            async function handleSqlInput(query, sendToClient = false) {
+              const res = await sql(query);
+              console.log({ res })
+              sendSqlMessageToPeers(query);
+              if (res.resultRows) {
+                const spreadsheetDiv = document.getElementById("spreadsheet-div");
+                // @ts-ignore
+                const tableHtml = await table(res);
+                spreadsheetDiv.innerHTML = tableHtml;
+              }
+            }
+            /**
+             * @param {SubmitEvent} e
+             */
+            form.onsubmit = async (e) => {
+              e.preventDefault();
+              const query = /** @type {HTMLTextAreaElement} */ (
+                document.getElementById("query")
+              );
+              if (query?.value) {
+                console.time("userQuery")
+                await handleSqlInput(query.value, true)
+                console.timeEnd("userQuery")
+              }
+              else {
+                /**
+                 * @type {HTMLFileElement}
+                 */
+                const fileInput = document.getElementById("csv_file");
+                const file = fileInput.files[0];
+                console.log({ file })
+                const reader = new FileReader();
+                if (file)
+                  // Define the onload event to handle the file reading
+                  reader.onload = async (e) => {
+                    const content = e.target.result; // Get file content
+                    console.log({ content });
+                    console.time("importCsv")
+                    const { tableName, createTable, insert, inserts } = createTableFromCSV(content, file.name);
+                    console.log("will insert: ", inserts.length)
+                    await handleSqlInput(createTable, true)
+                    await handleSqlInput(insert, true)
+                    /*const promises = [];
+                    for (let i = 0; i < inserts.length; i++) {
+                      promises.push(handleSqlInput(inserts[i], true))
+                    }
+                    await Promise.all(promises)
+                    */
+                    console.timeEnd("importCsv")
+                    alert("Import finished successfully.")
+                    //await handleSqlInput(`SELECT * FROM ${tableName}`)
+                    //console.log({ data })
+                  };
+
+                // Read the file as text (you can also read as ArrayBuffer or DataURL if needed)
+                reader.readAsText(file);
+              }
+            };
+          }
+        default: {
+          console.log({ event });
+        }
+      }
+    };
+    /**
+ * @typedef {{
+ *  columnNames: string[],
+ *  resultRows: any[][] 
+ * }} QueryResult
+ */
+  </script>
+
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
