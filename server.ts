@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 const PORT = 8080;
 const app = http
   .createServer(async (req, res) => {
-    const path = "." + req?.url;
+    const path = "." + (req.url == "/" ? "/index.html" : req.url);
     console.log({ path });
     try {
       const file = await fs.readFile(path);

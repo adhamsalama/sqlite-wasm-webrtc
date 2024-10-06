@@ -9,7 +9,7 @@ const socket_io_1 = require("socket.io");
 const PORT = 8080;
 const app = node_http_1.default
     .createServer(async (req, res) => {
-    const path = "." + req?.url;
+    const path = "." + (req.url == "/" ? "/index.html" : req.url);
     console.log({ path });
     try {
         const file = await promises_1.default.readFile(path);
