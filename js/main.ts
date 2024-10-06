@@ -35,8 +35,10 @@ const sendMessageButton = document.getElementById(
   "sendMessage"
 ) as HTMLButtonElement;
 let localScreenCaptureEnabled = false;
+type FragmentedMessageType = "TEXT" | "BINARY";
 type FragmentedMessage = {
   messageId: string;
+  type: FragmentedMessageType;
   end: boolean;
   chunk: number[];
   index: number;
@@ -153,10 +155,15 @@ joinButton.onclick = async () => {
 hangupButton.onclick = () => {
   hangup();
 };
-function sendSqlMessageToPeers(query: string) {
+function sendFragmentedMessageToPeers(data: string | ArrayBuffer) {
   // Calculate the byte length
   const DATACHANNEL_MAX_MESSAGE_SIZE_IN_BYTES = 16000; // 16 KB
-  const encodedMessage = new TextEncoder().encode(query);
+  const MESSAGE_TYPE: FragmentedMessageType =
+    typeof data == "string" ? "TEXT" : "BINARY";
+  const encodedMessage: Uint8Array =
+    typeof data == "string"
+      ? new TextEncoder().encode(data)
+      : new Uint8Array(data);
   console.log({ messageSize: encodedMessage.length });
   if (encodedMessage.length >= DATACHANNEL_MAX_MESSAGE_SIZE_IN_BYTES) {
     console.log("message exceeds max size, fragmenting...");
@@ -180,29 +187,29 @@ function sendSqlMessageToPeers(query: string) {
     console.log({ messageBufferSize: messageBuffer.length });
     peers.forEach((peer) => {
       messageBuffer.forEach((chunk, i) => {
-        peer.dc?.send(
-          // @ts-ignore
-          JSON.stringify({
-            userId: id,
-            data: {
-              chunk,
-              messageId,
-              index: i,
-              length: messageBuffer.length,
-              end: i < messageBuffer.length - 1 ? false : true,
-            },
-          } as DataChannelMessage)
-        );
+        const message: DataChannelMessage = {
+          userId: id,
+          data: {
+            type: MESSAGE_TYPE,
+            chunk,
+            messageId,
+            index: i,
+            length: messageBuffer.length,
+            end: i < messageBuffer.length - 1 ? false : true,
+          },
+        };
+        peer.dc?.send(JSON.stringify(message));
       });
     });
     return;
   }
   peers.forEach((peer) =>
     peer.dc?.send(
-      JSON.stringify({ userId: id, data: { sql: query } } as DataChannelMessage)
+      JSON.stringify({ userId: id, data: { sql: data } } as DataChannelMessage)
     )
   );
 }
+
 sendMessageButton.onclick = () => {
   const message = newMessage.value;
   peers.forEach((peer) =>
@@ -429,12 +436,29 @@ async function handleDataChannelMessage(event: MessageEvent<any>) {
       fragmentedMessages[messageId].push(...fragmentedMessage.chunk);
       if (fragmentedMessage.end) {
         console.log(`message ${messageId} is complete`);
-        const textDecoder = new TextDecoder();
-        const numToUintArr = new Uint8Array(fragmentedMessages[messageId]);
-        const defragmentedMessage = textDecoder.decode(numToUintArr);
-        delete fragmentedMessages[messageId];
-        await handleSqlInput(defragmentedMessage);
-        alert("Import finishes successfully.");
+        const type = fragmentedMessage.type;
+        if (type == "TEXT") {
+          const textDecoder = new TextDecoder();
+          const numToUintArr = new Uint8Array(fragmentedMessages[messageId]);
+          const defragmentedMessage = textDecoder.decode(numToUintArr);
+          delete fragmentedMessages[messageId];
+          await handleSqlInput(defragmentedMessage);
+          alert("Import finishes successfully.");
+        } else if (type == "BINARY") {
+          console.log("sql file received");
+          const root = await navigator.storage.getDirectory();
+          await root.removeEntry("db.sqlite3");
+          const newFile = await root.getFileHandle("db.sqlite3", {
+            create: true,
+          });
+          const writableStream = await newFile.createWritable();
+          const data = fragmentedMessages[messageId];
+          const uint = new Uint8Array(data);
+          const blob = new Blob([uint], { type: "application/vnd.sqlite3" });
+          await writableStream.write(blob); // takes array buffer or blob
+          await writableStream.close();
+          alert("done importing sqlite db");
+        }
       }
     }
   }
