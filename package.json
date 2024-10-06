@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
-    "start": "ts-node server.ts",
+    "start": "node server.js",
     "dev": "npm run build && npm run start"
   },
   "devDependencies": {
