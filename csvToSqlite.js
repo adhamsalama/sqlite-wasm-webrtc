@@ -1,7 +1,7 @@
 /**
  * @param {string} csvString
  * @param {string} tableName
- * @returns {{tableName: string, createTable: string, insert: string, inserts: string[]}}
+ * @returns {{tableName: string, createTable: string, insert: string}}
  */
 function createTableFromCSV(csvString, tableName) {
   const lines = CSV.parse(csvString);
@@ -18,8 +18,6 @@ function createTableFromCSV(csvString, tableName) {
       dataTypes.push("TEXT");
     }
   });
-  console.log({ headers });
-  console.log({ dataTypes });
   const sanitizedTableName = sanitizeTableName(tableName);
   // Create a table with the column names from CSV
   const createTableSQL = `CREATE TABLE ${sanitizedTableName} (${headers
@@ -31,7 +29,6 @@ function createTableFromCSV(csvString, tableName) {
     ", "
   )}) VALUES `;
 
-  const valuePlaceholders = [];
   const values = [];
   // Prepare values for the INSERT statement
   for (let i = 1; i < lines.length; i++) {
@@ -42,23 +39,13 @@ function createTableFromCSV(csvString, tableName) {
   }
   const fullInsertValues = values.join(",");
 
-  const inserts = lines.map((row, i) => {
-    return `INSERT INTO ${sanitizedTableName} (${headers.join(
-      ","
-    )}) VALUES (${row
-      .map((column) => `'${column.replace("'", "''")}'`)
-      .join(",")});`;
-  });
-
   // Combine the INSERT statement with the formatted values
   const fullInsertSQL = insertSQL + fullInsertValues;
-  // document.write(fullInsertSQL);
   // Return the create table and insert queries
   return {
     tableName: sanitizedTableName,
     createTable: createTableSQL,
-    insert: fullInsertSQL, // inserts.join(" "), // Return as a single string
-    inserts,
+    insert: fullInsertSQL,
   };
 }
 /**

@@ -91,8 +91,7 @@
                     const content = e.target.result; // Get file content
                     console.log({ content });
                     console.time("importCsv")
-                    const { tableName, createTable, insert, inserts } = createTableFromCSV(content, file.name);
-                    console.log("will insert: ", inserts.length)
+                    const { tableName, createTable, insert } = createTableFromCSV(content, file.name);
                     await handleSqlInput(createTable, true)
                     await handleSqlInput(insert, true)
                     /*const promises = [];
