@@ -5,7 +5,7 @@
  */
 function createTableFromCSV(csvString, tableName) {
   const lines = CSV.parse(csvString);
-  const headers = lines[0].map((l) => l.replace(" ", "_"));
+  const headers = lines[0].map((l) => l.replaceAll(" ", "_"));
   const firstNonHeaderLine = lines[1];
   /**
    * @type {string[]}
