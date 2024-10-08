@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <div id="toasts" class="toast-container top-0 end-0 p-3"></div>
   <div style="text-align: center;">
     <h1>SQLite WebAssembly + WebRTC</h1>
     <div id="metadata">
@@ -132,10 +133,10 @@
                       const { tableName, createTable, insert } = createTableFromCSV(content, file.name);
                       await handleSqlInput(createTable, true);
                       sendFragmentedMessageToPeers(createTable);
-                      await handleSqlInput(insert, true)
+                      await handleSqlInput(insert, true);
+                      console.timeEnd("importCsv");
+                      generateNotification("Import finished successfully.")
                       sendFragmentedMessageToPeers(insert);
-                      console.timeEnd("importCsv")
-                      alert("Import finished successfully.")
                     }
                     break;
                   }
@@ -147,12 +148,10 @@
                       const newFile = await root.getFileHandle("db.sqlite3", { create: true });
                       const writableStream = await newFile.createWritable();
                       const data = await file.arrayBuffer();
-                      console.log({ bufferSize: data.byteLength })
                       await writableStream.write(data);
                       await writableStream.close();
-                      alert("done importing sqlite db");
-                      console.log({ bufferSize: data.byteLength })
-                      sendFragmentedMessageToPeers(data)
+                      generateNotification("Import finished successfully.")
+                      sendFragmentedMessageToPeers(data);
                     }
                     break;
                   }

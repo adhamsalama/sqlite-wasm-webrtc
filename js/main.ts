@@ -434,6 +434,11 @@ async function handleDataChannelMessage(event: MessageEvent<any>) {
         fragmentedMessages[messageId] = [];
       }
       fragmentedMessages[messageId].push(...fragmentedMessage.chunk);
+      notifyDataImportProgress(
+        fragmentedMessage.messageId,
+        fragmentedMessage.index,
+        fragmentedMessage.length
+      );
       if (fragmentedMessage.end) {
         console.log(`message ${messageId} is complete`);
         const type = fragmentedMessage.type;
@@ -443,7 +448,6 @@ async function handleDataChannelMessage(event: MessageEvent<any>) {
           const defragmentedMessage = textDecoder.decode(numToUintArr);
           delete fragmentedMessages[messageId];
           await handleSqlInput(defragmentedMessage);
-          alert("Import finishes successfully.");
         } else if (type == "BINARY") {
           console.log("sql file received");
           const root = await navigator.storage.getDirectory();
@@ -457,9 +461,45 @@ async function handleDataChannelMessage(event: MessageEvent<any>) {
           const blob = new Blob([uint], { type: "application/vnd.sqlite3" });
           await writableStream.write(blob); // takes array buffer or blob
           await writableStream.close();
-          alert("done importing sqlite db");
         }
       }
     }
   }
+}
+
+function notifyDataImportProgress(id: string, index: number, length: number) {
+  const toastId = `toast-message-${id}`;
+  length = length - 1;
+  let message = "";
+  if (index == 0) {
+    message = "Importing started.";
+    generateNotification(message, toastId);
+    return;
+  } else if (index == length) {
+    message = "Import finished.";
+  } else {
+    message = `Import progress: ${Math.ceil((index / length) * 100)}%`;
+  }
+  updateNotification(message, toastId);
+}
+
+function generateNotification(message: string, id?: string) {
+  const html = `
+      <div ${
+        id ? `id="${id}"` : ""
+      } class="toast show align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            ${message}
+          </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+  `;
+  document.getElementById("toasts")!.innerHTML += html;
+}
+
+function updateNotification(message: string, id: string) {
+  const toast = document.getElementById(id)!;
+  toast.querySelector(".toast-body")!.innerHTML = message;
 }

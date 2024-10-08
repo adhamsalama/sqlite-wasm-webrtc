@@ -338,6 +338,10 @@ async function handleDataChannelMessage(event) {
                 fragmentedMessages[messageId] = [];
             }
             fragmentedMessages[messageId].push(...fragmentedMessage.chunk);
+            alertSqliteImportProgress(fragmentedMessage.messageId, fragmentedMessage.index, fragmentedMessage.length);
+            if (fragmentedMessage.index == 0) {
+                console.log("Importing SQLite DB started.");
+            }
             if (fragmentedMessage.end) {
                 console.log(`message ${messageId} is complete`);
                 const type = fragmentedMessage.type;
@@ -362,9 +366,42 @@ async function handleDataChannelMessage(event) {
                     const blob = new Blob([uint], { type: "application/vnd.sqlite3" });
                     await writableStream.write(blob); // takes array buffer or blob
                     await writableStream.close();
-                    alert("done importing sqlite db");
                 }
             }
         }
     }
+}
+function alertSqliteImportProgress(id, index, length) {
+    const toastId = `toast-message-${id}`;
+    length = length - 1;
+    let message = "";
+    if (index == 0) {
+        message = "Importing started.";
+        generateNotification(message, toastId);
+        return;
+    }
+    else if (index == length) {
+        message = "Import finished.";
+    }
+    else {
+        message = `Import progress: ${Math.ceil((index / length) * 100)}%`;
+    }
+    updateNotification(message, toastId);
+}
+function generateNotification(message, id) {
+    const html = `
+      <div ${id ? `id="${id}"` : ""} class="toast show align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            ${message}
+          </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+  `;
+    document.getElementById("toasts").innerHTML += html;
+}
+function updateNotification(message, id) {
+    const toast = document.getElementById(id);
+    toast.querySelector(".toast-body").innerHTML = message;
 }
