@@ -284,7 +284,7 @@ socket.on("message", async function (message: InboundMessage) {
     "offer"
   ) {
     if (message.toUserId !== id) {
-      console.log(`*** Offer not mean for me`);
+      console.log(`*** Offer not meant for me`);
       return;
     }
     console.log(`***Got offer from peer ${message.userId}`);
@@ -326,6 +326,7 @@ socket.on("message", async function (message: InboundMessage) {
       return;
     }
     console.log(`***Got answer from peer ${message.userId}`);
+    generateNotification(`User ${message.userId} joined the session.`);
     const peer = peers.find((peer) => peer.userId === message.userId);
     if (!peer) {
       alert("couldn't find peer");

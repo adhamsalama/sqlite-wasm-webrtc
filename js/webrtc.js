@@ -200,7 +200,7 @@ socket.on("message", async function (message) {
     else if (message.message.type ===
         "offer") {
         if (message.toUserId !== id) {
-            console.log(`*** Offer not mean for me`);
+            console.log(`*** Offer not meant for me`);
             return;
         }
         console.log(`***Got offer from peer ${message.userId}`);
@@ -237,6 +237,7 @@ socket.on("message", async function (message) {
             return;
         }
         console.log(`***Got answer from peer ${message.userId}`);
+        generateNotification(`User ${message.userId} joined the session.`);
         const peer = peers.find((peer) => peer.userId === message.userId);
         if (!peer) {
             alert("couldn't find peer");
@@ -338,10 +339,7 @@ async function handleDataChannelMessage(event) {
                 fragmentedMessages[messageId] = [];
             }
             fragmentedMessages[messageId].push(...fragmentedMessage.chunk);
-            alertSqliteImportProgress(fragmentedMessage.messageId, fragmentedMessage.index, fragmentedMessage.length);
-            if (fragmentedMessage.index == 0) {
-                console.log("Importing SQLite DB started.");
-            }
+            notifyDataImportProgress(fragmentedMessage.messageId, fragmentedMessage.index, fragmentedMessage.length);
             if (fragmentedMessage.end) {
                 console.log(`message ${messageId} is complete`);
                 const type = fragmentedMessage.type;
@@ -351,7 +349,6 @@ async function handleDataChannelMessage(event) {
                     const defragmentedMessage = textDecoder.decode(numToUintArr);
                     delete fragmentedMessages[messageId];
                     await handleSqlInput(defragmentedMessage);
-                    alert("Import finishes successfully.");
                 }
                 else if (type == "BINARY") {
                     console.log("sql file received");
@@ -371,7 +368,7 @@ async function handleDataChannelMessage(event) {
         }
     }
 }
-function alertSqliteImportProgress(id, index, length) {
+function notifyDataImportProgress(id, index, length) {
     const toastId = `toast-message-${id}`;
     length = length - 1;
     let message = "";
