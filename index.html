@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 
 <head>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SQLite WebAssembly + WebRTC</title>
   <link rel="stylesheet" href="/css/main.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href=" https://cdn.jsdelivr.net/npm/slickgrid@5.13.1/dist/styles/css/slick-icons.min.css " rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/styles/css/slick-alpine-theme.min.css">
 </head>
 
 <body>
@@ -33,15 +37,21 @@
     <button type="button" id="download" style="width: 100%;">Download DB</button>
     <button type="submit" style="width: 100%;">Run</button>
   </form>
-  <div id="spreadsheet-div"></div>
-  <script src="./csvToSqlite.js"></script>
-  <script src="./randomString.js"></script>
-  <script src="./async-worker.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
+  <div id="spreadsheet-div" class="slick-container" style="width:100%;height:1000px;"></div>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs/Sortable.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.interactions.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.grid.min.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
+
+  <script src="./csvToSqlite.js"></script>
+  <script src="./randomString.js"></script>
+  <script src="./async-worker.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="./spreadsheet.js"></script>
   <script src="./main.js"></script>
   <script src="js/webrtc.js"></script>

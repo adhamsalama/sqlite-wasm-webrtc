@@ -21,8 +21,9 @@ w.onmessage = function (event) {
           if (res.resultRows) {
             const spreadsheetDiv = document.getElementById("spreadsheet-div");
             // @ts-ignore
-            const tableHtml = await table(res);
-            spreadsheetDiv.innerHTML = tableHtml;
+            /*const tableHtml = await table(res);
+            spreadsheetDiv.innerHTML = tableHtml;*/
+            grid(res);
           }
         }
         document.getElementById("download").onclick = async (e) => {
@@ -132,7 +133,7 @@ w.onmessage = function (event) {
         };
       }
     default: {
-      console.log({ event });
+      //  console.log({ event });
     }
   }
 };
