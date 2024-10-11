@@ -319,7 +319,7 @@ async function handleSqlInput(query) {
         /*const tableHtml = (await table(res)) as string;
         spreadsheetDiv!.innerHTML = tableHtml;*/
         // @ts-ignore
-        grid(data);
+        grid(res);
     }
 }
 async function handleDataChannelMessage(event) {
