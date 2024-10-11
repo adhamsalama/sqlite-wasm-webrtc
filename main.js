@@ -1,5 +1,9 @@
 const w = new Worker("sqlite3-worker1.js");
 window.sqlite3Worker = w;
+/**
+ *
+ * @param {MessageEvent<any>} event
+ */
 w.onmessage = function (event) {
   event = event.data;
   switch (event.type) {
@@ -65,7 +69,7 @@ w.onmessage = function (event) {
             /**
              * @type {HTMLInputElement}
              */
-            const fileInput = document.getElementById("csv_file");
+            const fileInput = document.getElementById("file_input");
             /**
              * @type {File}
              */
