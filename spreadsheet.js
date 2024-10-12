@@ -13,7 +13,7 @@ function generateTableHead(columns) {
 }
 
 /**
- * @param {QueryResult2["resultRows"]} rows
+ * @param {any[][]} rows
  * @param {{classes: string[]}} [options]
  * @returns {string}
  */
@@ -55,12 +55,6 @@ function table(data) {
     `;
   return htmlTable;
 }
-/**
- * @typedef {{
- *  columnNames: string[],
- *  resultRows: any[][]
- * }} QueryResult2
- */
 
 /**
  * @param {{columnNames: string[], resultRows: any[][]}} data
@@ -95,5 +89,5 @@ function grid(data) {
     enableColumnReorder: true,
     enableAutoResize: true,
   };
-  new Slick.Grid("#spreadsheet-div", gridData, gridColumns, options);
+  new Slick.Grid("#grid", gridData, gridColumns, options);
 }

@@ -314,10 +314,6 @@ async function handleSqlInput(query) {
     // @ts-ignore
     const res = (await sql(query));
     if (res.resultRows) {
-        const spreadsheetDiv = document.getElementById("spreadsheet-div");
-        // @ts-ignore
-        /*const tableHtml = (await table(res)) as string;
-        spreadsheetDiv!.innerHTML = tableHtml;*/
         // @ts-ignore
         grid(res);
     }

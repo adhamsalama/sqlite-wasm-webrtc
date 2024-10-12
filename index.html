@@ -33,13 +33,16 @@
   <form id="query-form">
     <h1>Write your SQL queries here.</h1>
     <textarea id="query"></textarea>
+    <button type="submit" id="run-query" style="width: 100%;">Run</button>
+    <hr>
+    <p>Import CSV or SQLite file.</p>
     <input type="file" id="file_input">
-    <button type="button" id="download" style="width: 100%;">Download DB</button>
-    <button type="submit" style="width: 100%;">Run</button>
+    <button type="button" id="import" style="width: 100%;">Import</button>
+    <button type="button" id="export" style="width: 100%;">Export DB</button>
   </form>
-  <div id="spreadsheet-div" class="slick-container" style="width:100%;height:1000px;"></div>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs/Sortable.min.js"></script>
+  <div id="grid" class="slick-container" style="width:100%;height:1000px;"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.core.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.interactions.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slickgrid@5.12.1/dist/browser/slick.grid.min.js"></script>
